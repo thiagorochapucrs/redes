@@ -1,0 +1,16 @@
+{
+  "name": "rede-anel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.coffee",
+  "scripts": {
+    "start": "nodemon ./src/app.coffee",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Thiago Rocha, Bruno Mazardo",
+  "license": "MIT",
+  "devDependencies": {
+    "coffeescript": "^2.0.1",
+    "nodemon": "^1.12.1"
+  }
+}
