@@ -1,24 +1,29 @@
 readline = require 'readline'
 
-Message = require '../models/Message'
+Message = require './Message'
 
 class Terminal
 
-	constructor: (@messageList) ->
+	constructor: () ->
 		@rl = readline.createInterface {
 			input: process.stdin
 			output: process.stdout
 			prompt: ''
 		}
 
-	run: ->
+	setQueue: (@messageList) -> @
+
+	run: () ->
 		@rl.prompt()
 
-		@rl.on 'line', (line) ->
-			@messageList.push new Message line
+		@rl.on 'line', (line) =>
+			msg = new Message line
+			@messageList.push msg
 			return
 
 		@rl.on 'close', ->
 			console.log 'saindo...'
 			process.exit 0
 			return
+
+module.exports = Terminal

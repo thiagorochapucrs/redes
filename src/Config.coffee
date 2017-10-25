@@ -1,7 +1,7 @@
 fs = require 'fs'
 
 class Config
-	
+
 	constructor: ->
 		buffer = fs.readFileSync './config.txt'
 		strConfig = (String) buffer
@@ -10,3 +10,6 @@ class Config
 		@nextMachine = configArray[0]
 		@myName = configArray[1]
 		@sleepTime = configArray[2]
+
+
+module.exports = Config
