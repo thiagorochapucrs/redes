@@ -19,6 +19,9 @@ class Message
 	isForMe: (name) ->
 		@destiny is name
 
+	isForAll: ->
+		@destiny is 'TODOS'
+
 	isFromMe: (name) ->
 		@origin is name
 

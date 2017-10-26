@@ -70,7 +70,7 @@ class Network
 		token = '1234'
 		@socket.send token, @config.nextMachinePort, @config.nextMachine
 
-	appLogic: (buffer, info)->
+	appLogic: (buffer, info) =>
 		console.log 'Iniciando lógica da rede...'
 		strBuffer = (String) buffer
 		msg = new Message strBuffer
@@ -86,7 +86,25 @@ class Network
 			else
 				console.log 'Lista Vazia...'
 				@sendToken()
-
+		else if msg.isFromMe(@config.myName)
+			console.log 'Mensagem deu uma volta completa...'
+			if msg.hasError()
+				console.log 'Mensagem possui erro...'
+				if @sendMessage
+					console.log 'Mensagem já deu uma segunda volta, passando token...'
+					@sendToken()
+				else
+					console.log 'Tentando novamente...'
+					@sendMessage = true
+					msg.clearError()
+					@sendToNext(msg)
+			else
+				console.log 'Mensagem finalizada...'
+				@sendToken()
+		else if msg.isForAll()
+				console.log 'Mensagem broadcast...'
+				console.log "From #{msg.origin}: #{msg.text}"
+				@sendToNext(msg)
 		else if msg.isForMe(@config.myname)
 			console.log 'Mensagem...'
 			console.log "From #{msg.origin}: #{msg.text}"
@@ -94,19 +112,9 @@ class Network
 			console.log "Verificando mensagem... (Erro: #{err})"
 			if err then msg.setError() else msg.setRead()
 			@sendToNext(msg)
-
-		else if msg.isFromMe(@config.myName)
-			console.log 'Mensagem deu uma volta completa...'
-			if msg.hasError()
-				console.log 'Mensagem possui erro...'
-				if @sendMessage
-					console.log 'Mensagem já deu uma volta, passando token...'
-					@sendToken()
-				else
-					console.log 'Tentando novamente...'
-					@sendMessage = true
-					msg.clearError()
-					@sendToNext(msg)
+		else
+			console.log 'Não é pra mim....'
+			@sendToNext(msg)
 		return
 
 module.exports = Network
