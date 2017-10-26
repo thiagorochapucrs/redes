@@ -1,15 +1,10 @@
 class Message
 
-	@TOKEN_TYPE = '1234'
-	@OK = 'OK'
-	@ERROR = 'erro'
-	@NOT_RECEIVE = 'naocopiado'
-
 	constructor: (msg) ->
 		aux = msg.split ';'
 		@idHeader = aux[0]
 
-		if (aux[1]?) and (@idHeader isnt @TOKEN_TYPE)
+		if (aux[1]?) and (@idHeader isnt '1234')
 			aux = aux[1].split ':'
 			@ctrlHeader = aux[0]
 			@origin = aux[1]
@@ -19,7 +14,7 @@ class Message
 		return @
 
 	isToken: ->
-		@idHeader is @TOKEN_TYPE
+		@idHeader is '1234'
 
 	isForMe: (name) ->
 		@destiny is name
@@ -28,18 +23,18 @@ class Message
 		@origin is name
 
 	hasError: ->
-		@ctrlHeader is @ERROR
+		@ctrlHeader is 'error'
 
 	clearError: ->
-		@ctrlHeader = @NOT_RECEIVE
+		@ctrlHeader = 'naocopiado'
 		@
 
 	setError: ->
-		@ctrlHeader = @ERROR
+		@ctrlHeader = 'error'
 		@
 
 	setRead: ->
-		@ctrlHeader = @OK
+		@ctrlHeader = 'OK'
 		@
 
 	toString: ->

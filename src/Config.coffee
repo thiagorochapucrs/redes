@@ -7,9 +7,13 @@ class Config
 		strConfig = (String) buffer
 		configArray = strConfig.split '\n'
 
-		@nextMachine = configArray[0]
+		nextMachineInfo = configArray[0].split ':'
+		@nextMachineIP = nextMachineInfo[0]
+		@nextMachinePort = nextMachineInfo[1]
 		@myName = configArray[1]
-		@sleepTime = configArray[2]
+		@sleepTime = (configArray[2] * 1000)
+		@hasToken = (configArray[3] is '1234')
+
 
 
 module.exports = Config

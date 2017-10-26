@@ -1,4 +1,5 @@
 dgram = require 'dgram'
+timer = require 'timers'
 
 Message = require './Message'
 
@@ -8,55 +9,49 @@ class Network
 		@socket = dgram.createSocket 'udp4'
 		@sendMessage = false
 
-	setConfig: (@config) -> @
+	setConfig: (@config) ->
+		console.log 'Configuração....'
+		console.log 'Nome: ', @config.myName
+		console.log 'Máquina a direta: ', @config.nextMachineIP
+		console.log 'Porta da aplicação: ', @config.nextMachinePort
+		console.log 'Tempo de espera (ms): ', @config.sleepTime
+		@
 
 	setQueue: (@queue) -> @
 
 	run: ->
-		@socket.on 'listening', ->
-			console.log 'Entrando na rede...\n'
+		port = 6666
 
-
-		@socket.on 'message', (buffer, info) =>
-			strBuffer = (String) buffer
-			msg = new Message strBuffer
-
-			if msg.isToken()
-				console.log 'Token recebido...\n'
+		@socket.on 'listening', =>
+			console.log "Ouvindo porta #{port}..."
+			if @config.hasToken
+				console.log 'Iniciando com token...'
 				console.log 'Verificando lista de mensagens...'
 				queueSize = @queue.length
 				if queueSize > 1
-					choosen = @queue.shift
-					console.log "Enviando mensagem : < #{choosen} > \n"
-					sendToNext choosen
+					choosen = @queue.shift()
+					console.log "Enviando mensagem: < #{choosen} > "
+					@sendToNext choosen
 				else
-					console.log 'Lista Vazia...\n'
-					sendToken()
-
-			else if msg.isForMe(@config.myname)
-				console.log 'Mensagem...\n'
-				console.log "From #{msg.origin}: #{msg.text}\n"
-				err = randomError()
-				console.log "Verificando mensagem... (Erro: #{err})\n"
-				if err then msg.setError() else msg.setRead()
-				sendToNext(msg)
-
-			else if msg.isFromMe(@config.myName)
-				console.log 'Mensagem deu uma volta completa...\n'
-				if msg.hasError()
-					console.log 'Mensagem possui erro...\n'
-					if @sendMessage
-						console.log 'Mensagem já deu uma volta, passando token...\n'
-						sendToken()
-					else
-						console.log 'Tentando novamente...\n'
-						@sendMessage = true
-						msg.clearError()
-						sendToNext(msg)
+					console.log 'Lista Vazia...'
+					@sendToken()
+			else
+				console.log 'Não foi inicializado com token...'
+			return
 
 
+		@socket.on 'message', (buffer, info) =>
+			console.log 'Recebendo mensagem...'
+			console.log "Pacote recebido com o conteudo: " + buffer
+			console.log 'Aguardando...'
+			timer.setTimeout =>
+				@appLogic(buffer)
+				return
+			, @config.sleepTime
+			return
 
-		@socket.bind 6666
+		@socket.bind port
+
 
 
 		return @
@@ -66,12 +61,52 @@ class Network
 		if rd > 2 then false else true
 
 	sendToNext: (msg) ->
-		console.log "Enviando mensagem para #{@config.nextMachine}\n"
-		@socket.send msg.toString(), 6666, @config.nextMachine
+		console.log "Enviando pacote para #{@config.nextMachineIP}:#{@config.nextMachinePort}"
+		@socket.send msg.toString(), @config.nextMachinePort, @config.nextMachine
 
 	sendToken: ->
-		console.log 'Enviando Token...\n'
+		console.log 'Enviando Token...'
 		@sendMessage = false
-		@socket.send '1234', 6666, @config.nextMachine
+		token = '1234'
+		@socket.send token, @config.nextMachinePort, @config.nextMachine
+
+	appLogic: (buffer, info)->
+		console.log 'Iniciando lógica da rede...'
+		strBuffer = (String) buffer
+		msg = new Message strBuffer
+		if msg.isToken()
+			console.log 'Token recebido...'
+			console.log 'Verificando lista de mensagens...'
+			queueSize = @queue.length
+			console.log "Lista com tamanho #{queueSize}"
+			if queueSize >= 1
+				choosen = @queue.shift()
+				console.log "Enviando mensagem : < #{choosen} > "
+				@sendToNext choosen
+			else
+				console.log 'Lista Vazia...'
+				@sendToken()
+
+		else if msg.isForMe(@config.myname)
+			console.log 'Mensagem...'
+			console.log "From #{msg.origin}: #{msg.text}"
+			err = @randomError()
+			console.log "Verificando mensagem... (Erro: #{err})"
+			if err then msg.setError() else msg.setRead()
+			@sendToNext(msg)
+
+		else if msg.isFromMe(@config.myName)
+			console.log 'Mensagem deu uma volta completa...'
+			if msg.hasError()
+				console.log 'Mensagem possui erro...'
+				if @sendMessage
+					console.log 'Mensagem já deu uma volta, passando token...'
+					@sendToken()
+				else
+					console.log 'Tentando novamente...'
+					@sendMessage = true
+					msg.clearError()
+					@sendToNext(msg)
+		return
 
 module.exports = Network
