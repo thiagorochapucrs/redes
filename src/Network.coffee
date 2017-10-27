@@ -58,7 +58,7 @@ class Network
 
 	randomError: ->
 		rd = Math.floor (Math.random() * 10) + 1
-		if rd > 2 then false else true
+		if rd > 5 then false else true
 
 	sendToNext: (msg) ->
 		console.log "Enviando pacote para #{@config.nextMachineIP}:#{@config.nextMachinePort}"
@@ -72,6 +72,7 @@ class Network
 
 	appLogic: (buffer, info) =>
 		console.log 'Iniciando lógica da rede...'
+		name = @config.myName
 		strBuffer = (String) buffer
 		msg = new Message strBuffer
 		if msg.isToken()
@@ -86,7 +87,7 @@ class Network
 			else
 				console.log 'Lista Vazia...'
 				@sendToken()
-		else if msg.isFromMe(@config.myName)
+		else if msg.isFromMe(name)
 			console.log 'Mensagem deu uma volta completa...'
 			if msg.hasError()
 				console.log 'Mensagem possui erro...'
@@ -105,7 +106,7 @@ class Network
 				console.log 'Mensagem broadcast...'
 				console.log "From #{msg.origin}: #{msg.text}"
 				@sendToNext(msg)
-		else if msg.isForMe(@config.myname)
+		else if msg.isForMe(name)
 			console.log 'Mensagem...'
 			console.log "From #{msg.origin}: #{msg.text}"
 			err = @randomError()

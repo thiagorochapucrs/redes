@@ -12,11 +12,15 @@ class Terminal
 		}
 
 	setQueue: (@messageList) -> @
+	setHeaderName: (name) ->
+		@header = "2345;naocopiado:#{name}:"
+		@
 
 	run: () ->
 		@rl.prompt()
 
 		@rl.on 'line', (line) =>
+			line = @header + line
 			msg = new Message line
 			@messageList.push msg
 			return

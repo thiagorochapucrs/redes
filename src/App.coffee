@@ -17,6 +17,7 @@ class App
 			.run()
 		@terminal
 			.setQueue @queue
+			.setHeaderName @config.myName
 			.run()
 
 
