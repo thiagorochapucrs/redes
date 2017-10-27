@@ -4,7 +4,7 @@ Message = require './Message'
 
 class Terminal
 
-	constructor: () ->
+	constructor: ->
 		@rl = readline.createInterface {
 			input: process.stdin
 			output: process.stdout

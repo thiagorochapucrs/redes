@@ -5,7 +5,7 @@
   "main": "app.coffee",
   "scripts": {
     "start": "nodemon ./src/App.coffee",
-    "debug": "iron-node ./src/app.coffee",
+    "debug": "nodemon --inspect ./src/App.coffee",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Thiago Rocha, Bruno Mazardo",
