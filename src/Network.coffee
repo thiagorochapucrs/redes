@@ -62,13 +62,12 @@ class Network
 
 	sendToNext: (msg) ->
 		console.log "Enviando pacote para #{@config.nextMachineIP}:#{@config.nextMachinePort}"
-		@socket.send msg.toString(), @config.nextMachinePort, @config.nextMachine
+		@socket.send msg.toString(), @config.nextMachinePort, @config.nextMachineIP
 
 	sendToken: ->
 		console.log 'Enviando Token...'
 		@sendMessage = false
 		token = '1234'
-		console.log @config.nextMachineIP
 		@socket.send token, @config.nextMachinePort, @config.nextMachineIP
 
 	appLogic: (buffer, info) =>
