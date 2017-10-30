@@ -68,7 +68,8 @@ class Network
 		console.log 'Enviando Token...'
 		@sendMessage = false
 		token = '1234'
-		@socket.send token, @config.nextMachinePort, @config.nextMachine
+		console.log @config.nextMachineIP
+		@socket.send token, @config.nextMachinePort, @config.nextMachineIP
 
 	appLogic: (buffer, info) =>
 		console.log 'Iniciando lógica da rede...'
